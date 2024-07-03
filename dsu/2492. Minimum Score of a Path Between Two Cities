@@ -1,0 +1,58 @@
+class Solution {
+public:
+    int parent[100009];
+    int sz[100009]; 
+
+    void make(int v){
+        parent[v] = v;
+        sz[v]=1;
+    }
+
+    int find(int v){
+        if(v==parent[v]) return v;
+        return parent[v]=find(parent[v]); // path compression
+    }
+
+    void Union(int a, int b){
+        a=find(a);
+        b=find(b);
+        if(a!=b){
+            // union by size
+            if(sz[a]<sz[b]){
+                swap(a,b);
+            }
+            parent[b]=a;
+            sz[a]+=sz[b];
+        }
+    }
+
+    int minScore(int n, vector<vector<int>>& roads) {
+        // Initialize the Union-Find structure
+        for(int i = 1; i <= n; ++i) {
+            make(i);
+        }
+
+        vector<vector<int>> g(n + 1);
+        map<pair<int, int>, int> mp;
+        for(auto& road : roads) {
+            int x = road[0];
+            int y = road[1];
+            int z = road[2];
+            g[x].push_back(y);
+            g[y].push_back(x);
+            mp[{x, y}] = z;
+            mp[{y, x}] = z; // Ensure both directions are stored
+            Union(x, y);
+        }
+
+        int ans = 100000;
+        for(int i = 1; i <= n; ++i) {
+            if(find(i) == find(n)) {
+                for(int child : g[i]) {
+                    ans = min(ans, mp[{i, child}]);
+                }
+            }
+        }
+        return ans;
+    }
+};
