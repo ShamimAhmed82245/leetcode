@@ -1,0 +1,82 @@
+class Solution {
+public:
+    int parent[250500];
+    int sz[250500]; 
+
+    void make(int v){
+        parent[v] = v;
+        sz[v]=1;
+    }
+
+    int find(int v){
+        if(v==parent[v]) return v;
+        return parent[v]=find(parent[v]);//path compression
+    }
+
+    void Union(int a, int b){
+        a=find(a);
+        b=find(b);
+        if(a!=b){
+            //union by size
+            if(sz[a]<sz[b]){
+                swap(a,b);
+            }
+            parent[b]=a;
+            sz[a]+=sz[b];
+        }
+    }
+
+    int largestIsland(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int sze =n*n+10;
+        for(int i=0;i<sze;i++)
+        {
+            make(i);
+        }
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<n;j++)
+            {
+                if(grid[i][j])
+                {
+                    if(i>0&&grid[i-1][j]==1) Union(i*n+j,(i-1)*n+j);
+                    if(j>0&&grid[i][j-1]==1) Union(i*n+j,i*n+j-1);
+                    if(i+1<n&&grid[i+1][j]==1) Union(i*n+j,(i+1)*n+j);
+                    if(j+1<n&&grid[i][j+1]==1) Union(i*n+j,i*n+j+1);
+                }
+            }
+        }
+        int ans=0;
+        for(int i=0;i<n;i++)
+        {
+            for(int j=0;j<n;j++)
+            {
+                if(grid[i][j]==0)
+                {
+                    set<int>st;
+                    if(i>0&&grid[i-1][j]==1){ st.insert(find((i-1)*n+j));}
+                    if(j>0&&grid[i][j-1]==1) st.insert(find(i*n+j-1));
+                    if(i+1<n&&grid[i+1][j]==1) st.insert(find((i+1)*n+j));
+                    if(j+1<n&&grid[i][j+1]==1) st.insert(find(i*n+j+1));
+                    int sum=0;
+                    // set<int>s;
+                    // for(auto it:st)
+                    // {
+                    //     s.insert(parent[it]);
+                    // }
+                    for(auto it:st)
+                    {
+                        sum+=sz[it];
+                        //cout<<it<<" "<<sz[it]<<endl;
+                    }
+                    //cout<<endl;
+                    //cout<<sum<<"--"<<endl;
+                    ans=max(ans,sum+1);
+                }
+            }
+        }
+        //cout<<ans<<endl;
+        if(ans==0) ans=n*n;
+        return ans;
+    }
+};
