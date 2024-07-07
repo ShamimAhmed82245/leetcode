@@ -1,0 +1,64 @@
+class Solution {
+
+public:
+    int parent[90009];
+    int sz[90009];
+
+    void make(int v)
+    {
+        parent[v] = v;
+        sz[v] = 1;
+    }
+
+    int find(int v)
+    {
+        if (v == parent[v])
+            return v;
+        return parent[v] = find(parent[v]); // path compression
+    }
+
+    void Union(int a, int b)
+    {
+        a = find(a);
+        b = find(b);
+        if (a != b)
+        {
+            // union by size
+            if (sz[a] < sz[b])
+            {
+                swap(a, b);
+            }
+            parent[b] = a;
+            sz[a] += sz[b];
+        }
+    }
+
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        int sze=n*m+5;
+        for(int i=0;i<sze;i++){
+            make(i);
+        }
+        for(int i=0;i<grid.size();i++){
+            for(int j=0;j<grid[i].size();j++){
+                if(grid[i][j]=='1'){
+                    if(i>0&&grid[i-1][j]=='1') Union(i*m+j,(i-1)*m+j);
+                    if(j>0&&grid[i][j-1]=='1') Union(i*m+j,i*m+j-1);
+                }
+            }
+        }
+        set<int>st;
+        for(int i=0;i<grid.size();i++){
+            for(int j=0;j<grid[i].size();j++){
+                if(grid[i][j]=='1'){
+                    st.insert(find(i*m+j));
+                }
+            }
+        }
+        int ans=st.size();
+        return ans;
+    }
+};
+
